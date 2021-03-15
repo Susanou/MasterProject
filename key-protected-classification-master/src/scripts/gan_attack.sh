@@ -41,7 +41,7 @@ train_vanilla_coll () {
     rm -rf ${output_dir}
     mkdir -p ${output_dir}
     
-    python train_coll.py \
+    python3 train_coll.py \
         --dataset=${1} \
         --c_attack=${2} \
         --output_dir=${output_dir} \
@@ -86,7 +86,7 @@ train_keyprot_coll () {
     rm -rf ${output_dir}
     mkdir -p ${output_dir}
     
-    python train_coll.py \
+    python3 train_coll.py \
         --dataset=${1} \
         --key_prot \
         --c_attack=${2} \
@@ -116,3 +116,4 @@ fi
 
 
 
+	
