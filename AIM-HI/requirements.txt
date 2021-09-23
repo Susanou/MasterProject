@@ -1,4 +1,4 @@
 numpy
 torch
-pickle
 torchvision
+resnet
