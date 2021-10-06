@@ -6,6 +6,7 @@ import torch.backends.cudnn as cudnn
 
 import torchvision
 import torchvision.transforms as transforms
+import torchvision.models as models
 
 import tensorflow as tf
 from tensorflow import keras
@@ -31,18 +32,6 @@ transform_test = transforms.Compose([
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
 
-model = keras.Sequential(
-    [
-    keras.layers.Flatten(input_shape=(28,28)),
-    keras.layers.Dense(128, activation='relu'),
-    keras.layers.Dense(50),
-    keras.layers.Dense(10)
-    ]
-)
-model.compile(  optimizer='adam',
-                loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                metrics=['accuracy'])
-
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform_train)
 
 testset = torchvision.datasets.CIFAR10(
@@ -63,12 +52,13 @@ print("global data", len(global_trainset))
 global_loader = torch.utils.data.DataLoader(global_trainset, batch_size=100, shuffle=False, num_workers=2)
 
 n_learners = 2 # Change that later
+theta = 4
 local_ds = len(local_trainset)//n_learners
 print("Length of the local dataset", local_ds)
 
 def train_local(dataset, epochs, net=None):
     if net == None:
-        net = model
+        net = models.resnet18()
     optimizer = optim.SGD(net.parameters(), lr=0.005, momentum=0.9)
     trainloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
 
@@ -109,3 +99,16 @@ for learner in learners:
 
 global_predictions = np.array(global_predictions)
 
+# Voting part loop
+certain_global = []
+count = 0
+for i in range(len(global_trainset)): 
+    tmp = np.zeros(10) #10 classes
+    for pred in global_predictions[:, i]:
+        tmp[pred] += 1
+    if tmp.max() >= theta:
+        certain_global.append((global_trainset[i][0], np.argmax(tmp)))
+        if np.argmax(tmp) == global_trainset[i][1]:
+            count += 1
+
+print("Certain predictions amount", len(certain_global), "with correct in them", count)
