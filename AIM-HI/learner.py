@@ -9,7 +9,9 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 
 import tensorflow as tf
+import tensorflow_datasets as tfds
 from tensorflow import keras
+
 
 import os
 import numpy as np
@@ -19,7 +21,7 @@ import pickle
 ##############
 # Global Vars
 ##############
-
+"""
 transform_train = transforms.Compose([
     transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
@@ -50,6 +52,26 @@ print("local data", len(local_trainset))
 global_trainset = torch.utils.data.Subset(trainset, list(range(5000, 50000)))
 print("global data", len(global_trainset))
 global_loader = torch.utils.data.DataLoader(global_trainset, batch_size=100, shuffle=False, num_workers=2)
+"""
+
+
+# Building model
+
+model = keras.Sequential(
+    [
+    keras.layers.Flatten(input_shape=(32,32, 3)),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dense(50),
+    keras.layers.Dense(10)
+    ]
+)
+model.compile(  optimizer='adam',
+                loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                metrics=['accuracy'])
+
+builder = tfds.builder('cifar10')
+print(builder.info.splits.keys())
+print(builder.info.splits['train'].num_examples)
 
 n_learners = 2 # Change that later
 theta = 4
