@@ -12,6 +12,8 @@ import tensorflow as tf
 import tensorflow_datasets as tfds
 from tensorflow import keras
 
+from keras.models import load_model
+
 
 import os
 import numpy as np
@@ -54,8 +56,47 @@ print("global data", len(global_trainset))
 global_loader = torch.utils.data.DataLoader(global_trainset, batch_size=100, shuffle=False, num_workers=2)
 """
 
+builder = tfds.builder('cifar10')
+builder.download_and_prepare(download_dir='data/')
+print(builder.info.splits.keys())
+print(builder.info.splits['train'].num_examples)
+print(builder.info.splits['test'].num_examples)
 
-# Building model
+local_trainset = builder.as_dataset()
+
+assert isinstance(local_trainset, tf.data.Dataset)
+
+n_learners = 2 # Change that later
+theta = 4
+local_ds = len(local_trainset)//n_learners
+print("Length of the local dataset", local_ds)
+
+trainsets = local_trainset.batch(2)
+
+# Training loop
+for i in range(n_learners):
+    # Building model
+
+    model = keras.Sequential(
+        [
+        keras.layers.Flatten(input_shape=(32,32, 3)),
+        keras.layers.Dense(128, activation='relu'),
+        keras.layers.Dense(50),
+        keras.layers.Dense(10)
+        ]
+    )
+    model.compile(  optimizer='adam',
+                    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                    metrics=['accuracy'])
+    
+    model.fit(trainsets[i], epochs=10, shuffle=True)
+
+    # Maybe better way but needed to save into a file at one point
+    model.save(f'models/model_{i}.tf')
+    del model
+    learners.append(load_model(f'models/model_{i}.tf'))
+
+# Target training 
 
 model = keras.Sequential(
     [
@@ -69,45 +110,10 @@ model.compile(  optimizer='adam',
                 loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
 
-builder = tfds.builder('cifar10')
-print(builder.info.splits.keys())
-print(builder.info.splits['train'].num_examples)
-
-n_learners = 2 # Change that later
-theta = 4
-local_ds = len(local_trainset)//n_learners
-print("Length of the local dataset", local_ds)
-
-def train_local(dataset, epochs, net=None):
-    if net == None:
-        net = models.resnet18()
-    optimizer = optim.SGD(net.parameters(), lr=0.005, momentum=0.9)
-    trainloader = torch.utils.data.DataLoader(dataset, batch_size=64, shuffle=True, num_workers=2)
-
-    net.train()
-    train_loss = 0
-
-    for e in range(epochs):
-        for i, (inputs, labels) in enumerate(trainloader):
-            inputs, labels = inputs.to(device), labels.to(device)
-            optimizer.zero_grad()
-            outputs = net(inputs)
-
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
-            train_loss += loss.item()
-
-        if e%10==0:
-            print('Epoch%d, Loss: %.3f' % (e, train_loss/(i+1)))
-
-    return net
-
-# Training loop
-for i in range(n_learners):
-    local_dataset = torch.utils.data.Subset(local_trainset, list(range(i*local_ds, (i+1)*local_ds)))
-    net = train_local(local_dataset, 1000)
-    learners.append(net)
+model.fit(local_trainset, epochs=10, shuffle=True)
+model.save(f'models/target.tf')
+del model
+target = load_model('models/target.tf')
 
 # Global training
 
