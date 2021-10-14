@@ -47,7 +47,7 @@ device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 criterion = nn.CrossEntropyLoss()
 
-learners = []
+
 
 local_trainset = torch.utils.data.Subset(trainset, list(range(0, 5000)))
 print("local data", len(local_trainset))
@@ -56,22 +56,26 @@ print("global data", len(global_trainset))
 global_loader = torch.utils.data.DataLoader(global_trainset, batch_size=100, shuffle=False, num_workers=2)
 """
 
+learners = []
+
 builder = tfds.builder('cifar10')
 builder.download_and_prepare(download_dir='data/')
 print(builder.info.splits.keys())
 print(builder.info.splits['train'].num_examples)
 print(builder.info.splits['test'].num_examples)
 
-local_trainset = builder.as_dataset()
-
+local_trainset = builder.as_dataset()['train']
+print(local_trainset)
 assert isinstance(local_trainset, tf.data.Dataset)
+global_trainset = builder.as_dataset()['test']
 
 n_learners = 2 # Change that later
 theta = 4
 local_ds = len(local_trainset)//n_learners
 print("Length of the local dataset", local_ds)
 
-trainsets = local_trainset.batch(2)
+trainsets = list(local_trainset.batch(2).as_numpy_iterator())
+print(trainsets)
 
 # Training loop
 for i in range(n_learners):
