@@ -58,24 +58,20 @@ global_loader = torch.utils.data.DataLoader(global_trainset, batch_size=100, shu
 
 learners = []
 
-builder = tfds.builder('cifar10')
-builder.download_and_prepare(download_dir='data/')
-print(builder.info.splits.keys())
-print(builder.info.splits['train'].num_examples)
-print(builder.info.splits['test'].num_examples)
-
-local_trainset = builder.as_dataset()['train']
-print(local_trainset)
-assert isinstance(local_trainset, tf.data.Dataset)
-global_trainset = builder.as_dataset()['test']
+(x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
 
 n_learners = 2 # Change that later
 theta = 4
-local_ds = len(local_trainset)//n_learners
+local_ds = len(x_train)//n_learners
 print("Length of the local dataset", local_ds)
 
-trainsets = list(local_trainset.batch(2).as_numpy_iterator())
-print(trainsets)
+train_a_x = x_train[:local_ds]
+train_b_x = x_train[local_ds:]
+train_a_y = y_train[:local_ds]
+train_b_y = y_train[local_ds:]
+
+trainsets = [(train_a_x, train_a_y), (train_b_x, train_b_y)]
+#print(trainsets)
 
 # Training loop
 for i in range(n_learners):
@@ -93,7 +89,7 @@ for i in range(n_learners):
                     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                     metrics=['accuracy'])
     
-    model.fit(trainsets[i], epochs=10, shuffle=True)
+    model.fit(trainsets[i][0], trainsets[i][1], epochs=10, shuffle=True)
 
     # Maybe better way but needed to save into a file at one point
     model.save(f'models/model_{i}.tf')
@@ -114,7 +110,7 @@ model.compile(  optimizer='adam',
                 loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                 metrics=['accuracy'])
 
-model.fit(local_trainset, epochs=10, shuffle=True)
+model.fit(x_train, y_train, epochs=10, shuffle=True)
 model.save(f'models/target.tf')
 del model
 target = load_model('models/target.tf')
@@ -123,24 +119,22 @@ target = load_model('models/target.tf')
 
 global_predictions = []
 for learner in learners:
-    global_predictions.append([])
-
-    for inputs, labels in global_loader:
-        _, pred = learner(inputs.to(device)).max(1)
-        global_predictions[-1] += pred.data.cpu().numpy().tolist()
+    global_predictions.append(learner.predict(x_test))
 
 global_predictions = np.array(global_predictions)
+
+print(np.argmax(global_predictions[0][0]), np.argmax(global_predictions[1][0]), y_test[0])
 
 # Voting part loop
 certain_global = []
 count = 0
-for i in range(len(global_trainset)): 
-    tmp = np.zeros(10) #10 classes
-    for pred in global_predictions[:, i]:
-        tmp[pred] += 1
-    if tmp.max() >= theta:
-        certain_global.append((global_trainset[i][0], np.argmax(tmp)))
-        if np.argmax(tmp) == global_trainset[i][1]:
-            count += 1
+for i in range(len(y_test)): 
+
+    tmp = np.maximum.reduce(global_predictions)
+    certain_global.append(tmp)
+
+    if np.argmax(tmp) == y_test[i]:
+        count += 1
 
 print("Certain predictions amount", len(certain_global), "with correct in them", count)
+
