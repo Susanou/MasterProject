@@ -131,7 +131,18 @@ def dataset_formatting_label_culling(train_x, train_y, global_size, fixed, FP):
 
     return trainsets, global_train_x, global_train_y
 
+def test_acc(learners, target):
+    certain_global, count = vote(learners, x_test, y_test)
+    print("OVER TEST DATA = Certain predictions amount", len(certain_global), "with correct in them", count)
 
+    target_predict = target.predict(x_test)
+    count = 0
+    for i in range(len(y_test)):
+
+        if np.argmax(target_predict[i]) == y_test[i]:
+            count += 1
+
+    print("OVER TEST DATA = TARGET Certain predictions amount", len(target_predict), "with correct in them", count)
 
 
 ##############
@@ -144,8 +155,8 @@ learners = []
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-#trainsets, global_x, global_y = dataset_formatting(x_train, y_train, 30000, 50)
-trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 30000, False, 0.0)
+#trainsets, global_x, global_y = dataset_formatting(x_train, y_train, 40000, 10)
+trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 30000, True, 0.1)
 
 # Training loop
 for i in range(len(trainsets)):
@@ -180,23 +191,16 @@ for i in range(len(global_y)):
 
 print("TARGET Certain predictions amount", len(target_predict), "with correct in them", count)
 
+test_acc(learners, target)
+
 # fit model to the new labels
 # Training loop
 for i in range(len(learners)):
     
     train_local(global_x, certain_global, learners, i)
-    learners[i] = load_model(f'models/model_{i}.tf')
+    learners = []
+    learners.append(load_model(f'models/model_{i}.tf'))
 
-# Last round of perdications to check accuracy changes
+# Last round of perdictions to check accuracy changes
 
-certain_global, count = vote(learners, x_test, y_test)
-print("Certain predictions amount", len(certain_global), "with correct in them", count)
-
-target_predict = target.predict(x_test)
-count = 0
-for i in range(len(y_test)):
-
-    if np.argmax(target_predict[i]) == y_test[i]:
-        count += 1
-
-print("TARGET Certain predictions amount", len(target_predict), "with correct in them", count)
+test_acc(learners, target)

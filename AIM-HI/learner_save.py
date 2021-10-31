@@ -155,8 +155,8 @@ learners = []
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-trainsets, global_x, global_y = dataset_formatting(x_train, y_train, 40000, 10)
-#trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 30000, False, 0.0)
+#trainsets, global_x, global_y = dataset_formatting(x_train, y_train, 40000, 10)
+trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 30000, False, 0.1)
 
 # Training loop
 for i in range(len(trainsets)):
