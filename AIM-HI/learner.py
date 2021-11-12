@@ -59,6 +59,16 @@ def check_vote(g_predictions, voted, labels):
 
     print(f"There  was a total of {misscount} misscounts during vote where one of the learners at least classified it correctly")
 
+def check_learner_acc(learner, images, labels):
+    tp = 0
+
+    for i, l in enumerate(learner.predict(images)):
+        if labels[i] == np.argmax(l):
+            tp += 1
+    
+    print(f"tp = {tp} => acc = tp/len = {float(tp/len(labels))}")
+    print("Results from built-in tf function ", learner.evaluate(images, labels, batch_size=128, verbose=0))
+
 def is_multualy_exclusive(list1, list2):
     mask = np.isin(list1, list2)
     #print(any(list(mask)))
@@ -71,11 +81,14 @@ def vote(voters, images, labels):
     global_predictions = []
     for v in voters:
         global_predictions.append(v.predict(images))
+        #check_learner_acc(v, images, labels)
+        results = v.evaluate(images, labels, batch_size=128, verbose=0)
+        print(f"results of voter acc test: loss={results[0]} acc={results[1]}")
         #print(v.predict(images))
 
     global_predictions = np.array(global_predictions)
 
-#    print(global_predictions)
+    #print(global_predictions)
 
     # Voting part loop
     certain_global = []
@@ -96,8 +109,8 @@ def vote(voters, images, labels):
         check_vote(global_predictions, certain_global, labels)
     else:
         
-        a_class = [0, None, None, None, 4, None, 6, None, 8,9]
-        b_class = [None, 1, 2, 3, None, 5, None, 7, None, None]
+        a_class = [0,4,6,8,9]
+        b_class = [1,2,3,5,7]
         classes = [a_class, b_class]
 
         #print(global_predictions[0][0], global_predictions[1][0], labels[0])
@@ -120,17 +133,17 @@ def train_local(train_x, train_y, learners, i):
     try:
         model = learners[i]
 
-        model.fit(train_x, train_y, epochs=10, shuffle=True)
+        model.fit(train_x, train_y, epochs=10, shuffle=True, verbose=0)
 
         # Maybe better way but needed to save into a file at one point
         model.save(f'models/model_{i}.tf')
     except Exception as e:
         if culling:
-            model = create_culled_model(10) # we are training them on 5 classes currently. make it modular later
+            model = create_culled_model(6) # we are training them on 5 classes currently. make it modular later
         else:
             model = create_model()
     
-        model.fit(train_x, train_y, epochs=10, shuffle=True)
+        model.fit(train_x, train_y, epochs=10, shuffle=True, verbose=0)
 
         # Maybe better way but needed to save into a file at one point
         model.save(f'models/model_{i}.tf')
@@ -182,22 +195,17 @@ def dataset_formatting_label_culling(train_x, train_y, global_size, fixed, FP):
     for i, e in enumerate(local_train_y):
         if e in a_class:
             train_a_x.append(local_train_x[i])
-            train_a_y.append(local_train_y[i])
+            train_a_y.append(a_class.index(local_train_y[i]))
         elif random.random() < FP:
             train_a_x.append(local_train_x[i])
-            train_a_y.append(local_train_y[i])
+            train_a_y.append(a_class.index(local_train_y[i]))
         
         if e in b_class:
             train_b_x.append(local_train_x[i])
-            train_b_y.append(local_train_y[i])
+            train_b_y.append(b_class.index(local_train_y[i]))
         elif random.random() < FP:
             train_b_x.append(local_train_x[i])
-            train_b_y.append(local_train_y[i])
-    
-    if FP == 0.0:
-        #print(train_a_y)
-        assert is_multualy_exclusive(b_class, train_a_y)
-        assert is_multualy_exclusive(a_class, train_b_y)
+            train_b_y.append(b_class.index(local_train_y[i]))
 
     trainsets = [(np.array(train_a_x), np.array(train_a_y)), (np.array(train_b_x), np.array(train_b_y))]
 
@@ -221,6 +229,8 @@ def test_acc(learners, target):
 # Global Vars
 ##############
 
+tf.get_logger().setLevel('ERROR')
+
 culling = False
 
 learners = []
@@ -229,13 +239,13 @@ learners = []
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-trainsets, global_x, global_y = dataset_formatting(x_train, y_train, 20000, 10, 5)
+trainsets, global_x, global_y = dataset_formatting(x_train, y_train, 30000, 10, 5)
 #trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
 
 
 # Training loop
 for i in range(len(trainsets)):
-    print("Building model")
+    print(f"Building model {i}")
 
     train_local(trainsets[i][0], trainsets[i][1], learners, i)
     learners.append(load_model(f'models/model_{i}.tf'))
@@ -246,10 +256,13 @@ print("learners: ", len(learners))
 
 model = create_model()
 
-model.fit(x_train, y_train, epochs=10, shuffle=True)
+model.fit(x_train, y_train, epochs=10, shuffle=True, verbose=0)
 model.save(f'models/target.tf')
 del model
 target = load_model('models/target.tf')
+#check_learner_acc(target, x_test, y_test)
+results = target.evaluate(x_test, y_test, batch_size=128, verbose=0)
+print(f"results of target acc test: loss={results[0]} acc={results[1]}")
 
 
 certain_global, count = vote(learners, global_x, global_y)
@@ -271,10 +284,10 @@ test_acc(learners, target)
 # fit model to the new labels
 # Training loop
 for i in range(len(learners)):
-    
+    print(f"Training lernear {i}")
     train_local(global_x, certain_global, learners, i)
-    learners = []
-    learners.append(load_model(f'models/model_{i}.tf'))
+    learners[i] = load_model(f'models/model_{i}.tf')
+
 
 # Last round of perdictions to check accuracy changes
 certain_global, count = vote(learners, global_x, global_y)
