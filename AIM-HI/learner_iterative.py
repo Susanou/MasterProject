@@ -32,14 +32,14 @@ def create_model():
 def create_culled_model(num_classes):
     model = keras.Sequential(
         [
-        keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),
-        keras.layers.MaxPooling2D((2,2)),
-        keras.layers.Conv2D(64, (3,3), activation='relu'),
-        keras.layers.MaxPooling2D((2,2)),
-        keras.layers.Conv2D(64, (3,3), activation='relu'),
-        keras.layers.Flatten(),
-        keras.layers.Dense(64, activation='relu'),
-        keras.layers.Dense(num_classes)
+            keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),
+            keras.layers.MaxPooling2D((2,2)),
+            keras.layers.Conv2D(64, (3,3), activation='relu'),
+            keras.layers.MaxPooling2D((2,2)),
+            keras.layers.Conv2D(64, (3,3), activation='relu'),
+            keras.layers.Flatten(),
+            keras.layers.Dense(64, activation='relu'),
+            keras.layers.Dense(num_classes)
         ]
     )
     model.compile(  optimizer='adam',
@@ -160,11 +160,6 @@ def dataset_formatting(train_x, train_y, global_size, percent, n_learners=2):
     else:
         local_ds = len(local_train_x)//n_learners
     print("Length of the local dataset", local_ds)
-
-    train_a_x = local_train_x[:local_ds]
-    train_b_x = local_train_x[local_ds:]
-    train_a_y = local_train_y[:local_ds]
-    train_b_y = local_train_y[local_ds:]
 
     trainsets = [(local_train_x[i*local_ds:(i+1)*local_ds], local_train_y[i*local_ds:(i+1)*local_ds]) for i in range(n_learners)]
 
