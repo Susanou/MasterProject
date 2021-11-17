@@ -1,3 +1,5 @@
 numpy
 tensorflow
+tensorflow_gpu
 tensorflow_datasets
+tensorflow_federated
