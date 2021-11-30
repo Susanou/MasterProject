@@ -99,7 +99,7 @@ def vote(voters, images, labels):
             tmp = np.zeros(10)
 
             for cg in global_predictions:
-                tmp += cg[i]
+                tmp = np.add(tmp, cg[i])
                 #tmp = np.maximum.reduce(global_predictions[:, i])
 
             certain_global.append(np.argmax(tmp))
@@ -300,8 +300,10 @@ for i in range(epochs):
     # fit model to the new labels
     # Training loop
     for j in range(len(learners)):
+        trainsets[j][0] = np.append(trainsets[j][0], global_x[i*local_ds:(i+1)*local_ds])
+        trainsets[j][1] = np.append(trainsets[j][1], certain_global)
         
-        train_local(global_x[i*local_ds:(i+1)*local_ds], certain_global, learners, j)
+        train_local(trainsets[j][0], trainsets[j][1], [], j)
         learners[j] = load_model(f'models/model_{j}.tf')
 
     #test_acc(learners, target)
