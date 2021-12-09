@@ -99,10 +99,11 @@ def vote(voters, images, labels):
             tmp = np.zeros(10)
 
             for cg in global_predictions:
-                tmp = np.add(tmp, cg[i])
+                best = np.argmax(cg[i])
+                tmp[best] += cg[best]
                 #tmp = np.maximum.reduce(global_predictions[:, i])
 
-            certain_global.append(np.argmax(tmp))
+            certain_global.append([np.argmax(tmp)])
 
             if np.argmax(tmp) == labels[i]:
                 count += 1
@@ -161,7 +162,7 @@ def dataset_formatting(train_x, train_y, global_size, percent, n_learners=2):
         local_ds = len(local_train_x)//n_learners
     print("Length of the local dataset", local_ds)
 
-    trainsets = [(local_train_x[i*local_ds:(i+1)*local_ds], local_train_y[i*local_ds:(i+1)*local_ds]) for i in range(n_learners)]
+    trainsets = [[local_train_x[i*local_ds:(i+1)*local_ds], local_train_y[i*local_ds:(i+1)*local_ds]] for i in range(n_learners)]
 
     return trainsets, global_train_x, global_train_y, local_ds
 
@@ -202,7 +203,7 @@ def dataset_formatting_label_culling(train_x, train_y, global_size, fixed, FP):
             train_b_x.append(local_train_x[i])
             train_b_y.append(b_class.index(local_train_y[i]))
 
-    trainsets = [(np.array(train_a_x), np.array(train_a_y)), (np.array(train_b_x), np.array(train_b_y))]
+    trainsets = [[np.array(train_a_x), np.array(train_a_y)], [np.array(train_b_x), np.array(train_b_y)]]
 
     return trainsets, global_train_x, global_train_y
 
@@ -250,6 +251,8 @@ for i in range(len(trainsets)):
     train_local(trainsets[i][0], trainsets[i][1], learners, i)
     learners.append(load_model(f'models/model_{i}.tf'))
 
+print(len(trainsets[0][0]), len(trainsets[0][1]))
+
 print("learners: ", len(learners))
 
 # Target training 
@@ -289,20 +292,31 @@ print(f"Number of epochs {epochs}")
 
 # Training loop iterations
 for i in range(epochs):
-    print(f"Training lernear {i}")
+    print(f"Training epoch {i}")
     
     #print(global_x[i*local_ds:(i+1)*local_ds][0])
     certain_global, count = vote(learners, global_x[i*local_ds:(i+1)*local_ds], global_y[i*local_ds:(i+1)*local_ds])
 
     certain_global = np.array(certain_global)
     print("Certain predictions amount", len(certain_global), "with correct in them", count)
+    
 
     # fit model to the new labels
     # Training loop
     for j in range(len(learners)):
-        trainsets[j][0] = np.append(trainsets[j][0], global_x[i*local_ds:(i+1)*local_ds])
-        trainsets[j][1] = np.append(trainsets[j][1], certain_global)
+        print(f"Training learner {j}")
+
+        tmp_img = trainsets[j][0]
+        tmp_labels = trainsets[j][1]
+
+        #print(tmp_labels)
+        #print(certain_global)
+
+        trainsets[j][0] = np.append(tmp_img, global_x[i*local_ds:(i+1)*local_ds], axis=0)
+        trainsets[j][1] = np.append(tmp_labels, certain_global, axis=0)
         
+        assert len(trainsets[j][0]) == len(trainsets[j][1])
+
         train_local(trainsets[j][0], trainsets[j][1], [], j)
         learners[j] = load_model(f'models/model_{j}.tf')
 

@@ -102,7 +102,7 @@ def vote(voters, images, labels):
                 tmp += cg[i]
                 #tmp = np.maximum.reduce(global_predictions[:, i])
 
-            certain_global.append(np.argmax(tmp))
+            certain_global.append([np.argmax(tmp)])
 
             if np.argmax(tmp) == labels[i]:
                 count += 1

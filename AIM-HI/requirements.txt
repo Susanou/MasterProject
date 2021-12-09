@@ -3,3 +3,5 @@ tensorflow
 tensorflow_gpu
 tensorflow_datasets
 tensorflow_federated
+tensorboard
+nest-asyncio
