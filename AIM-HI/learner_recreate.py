@@ -79,13 +79,17 @@ def vote(voters, images, labels):
 
     # Global Predications of all learners
 
+    f = open("outputs/plotdata.csv", "a")
+    f.write("Epoch,Learner,Loss,Accuracy")
+
     global_predictions = []
-    for v in voters:
+    for i, v in enumerate(voters):
         global_predictions.append(v.predict(images))
         #check_learner_acc(v, images, labels)
         results = v.evaluate(images, labels, batch_size=128, verbose=0)
-        print(f"results of voter acc test: loss={results[0]} acc={results[1]}")
+        print(f"results of voter {i} acc test: loss={results[0]} acc={results[1]}")
         #print(len(images), len(labels))
+        print(f"{e},{i},{results[0]},{results[1]}")
 
     global_predictions = np.array(global_predictions)
 
@@ -100,7 +104,7 @@ def vote(voters, images, labels):
 
             for cg in global_predictions:
                 best = np.argmax(cg[i])
-                tmp[best] += cg[best]
+                tmp[best] += cg[i][best]
                 #tmp = np.maximum.reduce(global_predictions[:, i])
 
             certain_global.append([np.argmax(tmp)])
@@ -236,6 +240,7 @@ culling = False
 
 learners = []
 
+e = 0 #variable for the epoch number
 
 (x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
 x_train = x_train/255.0
@@ -282,7 +287,7 @@ test_acc(learners, target)
 
 
 # Set number of itterations either via local_ds or number of epochs to train
-epochs = 30
+epochs = 15
 #epochs = len(global_x) // (local_ds) + 1
 local_ds = len(global_x) // epochs
 
@@ -291,11 +296,20 @@ print(f"Data per epoch in itteration {local_ds}")
 print(f"Number of epochs {epochs}")
 
 # Training loop iterations
-for i in range(epochs):
+for i in range(epochs*2):
     print(f"Training epoch {i}")
+
+    e = i
+
+    start_x = (i*local_ds) % len(global_x)
+    end_x = ((i+1)*local_ds) % len(global_x) if (((i+1)*local_ds) % len(global_x)) != 0 else len(global_x)
+    start_y = (i*local_ds) % len(global_y)
+    end_y = ((i+1)*local_ds) % len(global_y) if (((i+1)*local_ds) % len(global_y)) != 0 else len(global_y)
     
     #print(global_x[i*local_ds:(i+1)*local_ds][0])
-    certain_global, count = vote(learners, global_x[i*local_ds:(i+1)*local_ds], global_y[i*local_ds:(i+1)*local_ds])
+    certain_global, count = vote(learners,
+                                global_x[start_x:end_x], 
+                                global_y[start_y:end_y])
 
     certain_global = np.array(certain_global)
     print("Certain predictions amount", len(certain_global), "with correct in them", count)
@@ -312,7 +326,9 @@ for i in range(epochs):
         #print(tmp_labels)
         #print(certain_global)
 
-        trainsets[j][0] = np.append(tmp_img, global_x[i*local_ds:(i+1)*local_ds], axis=0)
+        trainsets[j][0] = np.append(tmp_img, 
+                                    global_x[start_x:end_x],
+                                    axis=0)
         trainsets[j][1] = np.append(tmp_labels, certain_global, axis=0)
         
         assert len(trainsets[j][0]) == len(trainsets[j][1])
@@ -321,6 +337,8 @@ for i in range(epochs):
         learners[j] = load_model(f'models/model_{j}.tf')
 
     #test_acc(learners, target)
+
+e += 1
 
 # Last round of perdictions to check accuracy changes over a test dataset
 certain_global, count = vote(learners, global_x, global_y)
