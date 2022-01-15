@@ -80,7 +80,6 @@ def vote(voters, images, labels):
     # Global Predications of all learners
 
     f = open("outputs/plotdata.csv", "a")
-    f.write("Epoch,Learner,Loss,Accuracy")
 
     global_predictions = []
     for i, v in enumerate(voters):
@@ -89,9 +88,10 @@ def vote(voters, images, labels):
         results = v.evaluate(images, labels, batch_size=128, verbose=0)
         print(f"results of voter {i} acc test: loss={results[0]} acc={results[1]}")
         #print(len(images), len(labels))
-        print(f"{e},{i},{results[0]},{results[1]}")
+        print(f"{e},{i},{results[0]},{results[1]}", file = f)
 
     global_predictions = np.array(global_predictions)
+    f.close()
 
     #print(global_predictions)
 
@@ -242,6 +242,10 @@ learners = []
 
 e = 0 #variable for the epoch number
 
+f = open("outputs/plotdata.csv", "a")
+f.write("Epoch,Learner,Loss,Accuracy\n")
+f.close()
+
 (x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
 x_train = x_train/255.0
 x_test = x_test/255.0
@@ -299,7 +303,7 @@ print(f"Number of epochs {epochs}")
 for i in range(epochs*2):
     print(f"Training epoch {i}")
 
-    e = i
+    e = i+1
 
     start_x = (i*local_ds) % len(global_x)
     end_x = ((i+1)*local_ds) % len(global_x) if (((i+1)*local_ds) % len(global_x)) != 0 else len(global_x)
