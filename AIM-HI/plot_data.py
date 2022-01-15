@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("outputs/plotdata.csv")
+df = pd.read_csv("outputs/plotdata_30.csv")
 
 learners = []
 colors = ['b', 'g', 'r', 'c', 'm', 'y']

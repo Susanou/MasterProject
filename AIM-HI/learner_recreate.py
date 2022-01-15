@@ -9,6 +9,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
+filename = "outputs/plotdata_30.csv"
+
+f = open(filename, "a")
+f.write("Epoch,Learner,Loss,Accuracy\n")
+f.close()
+
 
 def create_model():
     model = keras.Sequential(
@@ -79,7 +85,7 @@ def vote(voters, images, labels):
 
     # Global Predications of all learners
 
-    f = open("outputs/plotdata.csv", "a")
+    f = open(filename, "a")
 
     global_predictions = []
     for i, v in enumerate(voters):
@@ -242,10 +248,6 @@ learners = []
 
 e = 0 #variable for the epoch number
 
-f = open("outputs/plotdata.csv", "a")
-f.write("Epoch,Learner,Loss,Accuracy\n")
-f.close()
-
 (x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
 x_train = x_train/255.0
 x_test = x_test/255.0
@@ -291,7 +293,7 @@ test_acc(learners, target)
 
 
 # Set number of itterations either via local_ds or number of epochs to train
-epochs = 15
+epochs = 30
 #epochs = len(global_x) // (local_ds) + 1
 local_ds = len(global_x) // epochs
 
@@ -335,7 +337,7 @@ for i in range(epochs*2):
                                     axis=0)
         trainsets[j][1] = np.append(tmp_labels, certain_global, axis=0)
         
-        assert len(trainsets[j][0]) == len(trainsets[j][1])
+        #assert len(trainsets[j][0]) == len(trainsets[j][1])
 
         train_local(trainsets[j][0], trainsets[j][1], [], j)
         learners[j] = load_model(f'models/model_{j}.tf')
