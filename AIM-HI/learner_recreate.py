@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-filename = "outputs/plotdata_30.csv"
+filename = "outputs/plotdata_30_3times.csv"
 
 f = open(filename, "a")
 f.write("Epoch,Learner,Loss,Accuracy\n")
@@ -19,7 +19,7 @@ f.close()
 def create_model():
     model = keras.Sequential(
         [
-        keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)),
+        keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)), #input_shape=(32, 32, 3)
         keras.layers.MaxPooling2D((2,2)),
         keras.layers.Conv2D(64, (3,3), activation='relu'),
         keras.layers.MaxPooling2D((2,2)),
@@ -113,7 +113,8 @@ def vote(voters, images, labels):
                 tmp[best] += cg[i][best]
                 #tmp = np.maximum.reduce(global_predictions[:, i])
 
-            certain_global.append([np.argmax(tmp)])
+            #certain_global.append([np.argmax(tmp)])    # original
+            certain_global.append(np.argmax(tmp))
 
             if np.argmax(tmp) == labels[i]:
                 count += 1
@@ -248,7 +249,7 @@ learners = []
 
 e = 0 #variable for the epoch number
 
-(x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
+(x_train, y_train), (x_test, y_test)= keras.datasets.mnist.load_data()
 x_train = x_train/255.0
 x_test = x_test/255.0
 
@@ -302,7 +303,7 @@ print(f"Data per epoch in itteration {local_ds}")
 print(f"Number of epochs {epochs}")
 
 # Training loop iterations
-for i in range(epochs*2):
+for i in range(epochs*5):
     print(f"Training epoch {i}")
 
     e = i+1
