@@ -1,8 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import sys
 
-df = pd.read_csv("outputs/plotdata_50_2times_cifar.csv")
+
+#print(sys.argv)
+
+df = pd.read_csv(sys.argv[1])
 
 learners = []
 colors = ['b', 'g', 'r', 'c', 'm', 'y']

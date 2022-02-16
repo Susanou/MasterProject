@@ -9,12 +9,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
-filename = "outputs/plotdata_50_2times_cifar.csv"
-
-f = open(filename, "a")
-f.write("Epoch,Learner,Loss,Accuracy\n")
-f.close()
-
 
 def create_model():
     model = keras.Sequential(
@@ -31,7 +25,7 @@ def create_model():
     )
     model.compile(  optimizer='adam',
                     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-                    metrics=['accuracy'])
+                    metrics=['accuracy', 'ce'])
 
     return model
 
@@ -232,6 +226,7 @@ def test_acc(learners, target):
     print("OVER TEST DATA = TARGET Certain predictions amount", len(target_predict), "with correct in them", count)
 
 
+
 ##############
 # Global Vars
 ##############
@@ -242,6 +237,25 @@ tf.config.set_soft_device_placement(True)
 #tf.debugging.set_log_device_placement(True) #uncomment if need to check that it is executing off of GPU
 tf.get_logger().setLevel('ERROR')
 
+filename = "outputs/plotdata_200_1times_cifar_10Klocal_acc&ce.csv"
+
+f = open(filename, "a")
+f.write("Epoch,Learner,Loss,Accuracy\n")
+f.close()
+
+(x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
+x_train = x_train/255.0
+x_test = x_test/255.0
+
+trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, 40000, 10, 5)
+#trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
+
+# Set number of itterations either via local_ds or number of epochs to train
+epochs = 200
+#epochs = len(global_x) // (local_ds) + 1
+local_ds = len(global_x) // epochs
+repetition = 1
+
 
 culling = False
 
@@ -250,12 +264,6 @@ learners = []
 e = 0 #variable for the epoch number
 
 #(x_train, y_train), (x_test, y_test)= keras.datasets.mnist.load_data()
-(x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
-x_train = x_train/255.0
-x_test = x_test/255.0
-
-trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, 30000, 10, 5)
-#trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
 
 # Training on local dataset
 for i in range(len(trainsets)):
@@ -293,18 +301,11 @@ print("TARGET Certain predictions amount", len(target_predict), "with correct in
 # first acc test before anything
 test_acc(learners, target)
 
-
-# Set number of itterations either via local_ds or number of epochs to train
-epochs = 50
-#epochs = len(global_x) // (local_ds) + 1
-local_ds = len(global_x) // epochs
-
-
 print(f"Data per epoch in itteration {local_ds}")
 print(f"Number of epochs {epochs}")
 
 # Training loop iterations
-for i in range(epochs*2):
+for i in range(epochs*repetition):
     print(f"Training epoch {i}")
 
     e = i+1
