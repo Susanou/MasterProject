@@ -11,6 +11,9 @@ import pickle
 
 
 def create_model():
+
+    """
+    # CIFAR10 model
     model = keras.Sequential(
         [
         keras.layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)), #input_shape=(28, 28, 1)
@@ -26,6 +29,22 @@ def create_model():
     model.compile(  optimizer='adam',
                     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                     metrics=['accuracy', 'ce'])
+    """
+
+
+    #MINST model
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(10)
+    ])
+
+    model.compile(
+        optimizer=tf.keras.optimizers.Adam(0.001),
+        loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+        metrics=[tf.keras.metrics.SparseCategoricalAccuracy()],
+    )
+
 
     return model
 
@@ -107,8 +126,8 @@ def vote(voters, images, labels):
                 tmp[best] += cg[i][best]
                 #tmp = np.maximum.reduce(global_predictions[:, i])
 
-            certain_global.append([np.argmax(tmp)])    # original
-            #certain_global.append(np.argmax(tmp))
+            #certain_global.append([np.argmax(tmp)])    # original
+            certain_global.append(np.argmax(tmp)) # mnist fix
 
             if np.argmax(tmp) == labels[i]:
                 count += 1
@@ -237,17 +256,18 @@ tf.config.set_soft_device_placement(True)
 #tf.debugging.set_log_device_placement(True) #uncomment if need to check that it is executing off of GPU
 tf.get_logger().setLevel('ERROR')
 
-filename = "outputs/plotdata_200_1times_cifar_10Klocal_acc&ce.csv"
+filename = "outputs/plotdata_200_1times_minst_10Klocal_acc&ce.csv"
 
 f = open(filename, "a")
 f.write("Epoch,Learner,Loss,Accuracy\n")
 f.close()
 
-(x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
+#(x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
+(x_train, y_train), (x_test, y_test)= keras.datasets.mnist.load_data()
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, 40000, 10, 5)
+trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, 59000, 10, 5)
 #trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
 
 # Set number of itterations either via local_ds or number of epochs to train
