@@ -1,6 +1,9 @@
 numpy
-tensorflow
-tensorflow_gpu
+#tensorflow==2.8
+#tensorflow_gpu==2.8
+#keras==2.8 #make sure versions match
+tf-nightly
+tf-nightly-gpu
 tensorflow_datasets
 matplotlib
 pandas

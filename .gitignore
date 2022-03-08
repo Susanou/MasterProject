@@ -2,3 +2,6 @@
 GAN_Attack/Results/
 
 AIM-HI/data/
+
+AIM-HI/aim_env/
+ml_privacy_meter/venv/
