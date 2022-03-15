@@ -256,7 +256,7 @@ def test_acc(learners, target):
 2 = INFO and WARNING messages are not printed
 3 = INFO, WARNING, and ERROR messages are not printed
 """
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
 
 # Use GPUs
 tf.config.set_soft_device_placement(True)
@@ -275,7 +275,7 @@ f.close()
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-global_size = 40000
+global_size = 20000
 
 assert global_size < len(x_train)
 

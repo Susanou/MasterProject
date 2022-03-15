@@ -152,7 +152,7 @@ global_size = 40000
 assert global_size < len(x_train)
 
 #trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, global_size, 10, 5)
-trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
+trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, global_size, True, 0.0)
 
 # Set number of itterations either via local_ds or number of epochs to train
 epochs = 50
@@ -169,5 +169,5 @@ e = 0 #variable for the epoch number
 
 #(x_train, y_train), (x_test, y_test)= keras.datasets.mnist.load_data()
 attack = create_model()
-attack.fit(trainsets[0][0], trainsets[0][1], epochs=10, shuffle=True, verbose=0)
+attack.fit(trainsets[0][0], trainsets[0][1], epochs=10, shuffle=True, verbose=2)
 attack.save(f'models\\attack\\model_attack.tf')
