@@ -28,7 +28,7 @@ def preprocess_cifar10_dataset():
 x_train, y_train, x_test, y_test, input_shape, num_classes = preprocess_cifar10_dataset()
 
 # training data of the target model
-num_datapoints = 5000
+num_datapoints = len(x_train)
 x_target_train, y_target_train = x_train[:num_datapoints], y_train[:num_datapoints]
 
 # population data (training data is a subset of this)
@@ -50,7 +50,7 @@ attackobj = ml_privacy_meter.attack.meminf.initialize(
     attack_datahandler=datahandlerA,
     layers_to_exploit=[6, 7],
     gradients_to_exploit=[4],
-    device=None, epochs=10, model_name='target_vitcim_10e_white')
+    device=None, epochs=100, model_name='target_vitcim_10e_white')
 
 print("starting attack training")
 attackobj.train_attack()

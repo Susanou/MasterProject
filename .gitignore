@@ -6,3 +6,7 @@ AIM-HI/data/
 AIM-HI/aim_env/
 ml_privacy_meter/venv/
 **/venv/
+
+*.npy
+*.tar.gz
+**/datasets/
