@@ -153,6 +153,54 @@ def vote(voters, images, labels):
         check_vote(global_predictions, certain_global, labels)
     return certain_global, count
 
+def new_vote(voters, images, labels):
+    f = open(filename, "a")
+
+    global_predictions = []
+    for i, v in enumerate(voters):
+        global_predictions.append(v.predict(images))
+        #check_learner_acc(v, images, labels)
+        results = v.evaluate(images, labels, batch_size=128, verbose=0)
+        print(f"results of voter {i} acc test: loss={results[0]} acc={results[1]}")
+        #print(len(images), len(labels))
+        print(f"{e},{i},{results[0]},{results[1]}", file = f)
+
+    global_predictions = np.array(global_predictions)
+    f.close()
+
+    #print(global_predictions)
+
+    # Voting part loop
+    image_voted     =       []
+    label_voted     =       []
+    image_not       =       []
+    label_not       =       []
+
+    count = 0
+
+    for i in range(len(labels)): 
+        tmp = np.zeros(10)
+
+        for cg in global_predictions:
+            best = np.argmax(cg[i])
+            tmp[best] += 1 #select only the best and check that its equal to 5 ie unanimous vote        
+
+        
+        if tmp[np.argmax(tmp)] == len(voters):
+            image_voted.append(images[i])
+            label_voted.append(labels[i])
+
+
+            if np.argmax(tmp) == labels[i]:
+                count += 1
+        else:
+            image_not.append(images[i])
+            label_not.append(labels[i])
+    
+    #check_vote(global_predictions, certain_global, labels)
+
+    return (image_voted, label_voted), (image_not, label_not), count
+
 def train_local(train_x, train_y, learners, i):
 
     try:
@@ -161,7 +209,7 @@ def train_local(train_x, train_y, learners, i):
         model.fit(train_x, train_y, epochs=10, shuffle=True, verbose=0)
 
         # Maybe better way but needed to save into a file at one point
-        model.save(f'models/cifar/model_{i}.tf')
+        model.save(f'models/new_method/model_{i}.tf')
     except Exception as e:
         if culling:
             model = create_culled_model(6) # we are training them on 5 classes currently. make it modular later
@@ -171,7 +219,7 @@ def train_local(train_x, train_y, learners, i):
         model.fit(train_x, train_y, epochs=10, shuffle=True, verbose=0)
 
         # Maybe better way but needed to save into a file at one point
-        model.save(f'models/cifar/model_{i}.tf')
+        model.save(f'models/new_method/model_{i}.tf')
 
 def dataset_formatting(train_x, train_y, global_size, percent, n_learners=2):
     local_train_x = train_x[global_size:]
@@ -264,22 +312,22 @@ tf.config.set_soft_device_placement(True)
 #tf.debugging.set_log_device_placement(True) #uncomment if need to check that it is executing off of GPU
 tf.get_logger().setLevel('ERROR')
 
-filename = "outputs/plotdata_100_1times_cifar_10Klocal_acc.csv"
+filename = "outputs/plotdata_newAIMHI_vote_logic.csv"
 
 f = open(filename, "a")
 f.write("Epoch,Learner,Loss,Accuracy\n")
 f.close()
 
 (x_train, y_train), (x_test, y_test)= keras.datasets.cifar10.load_data()
-#(x_train, y_train), (x_test, y_test)= keras.datasets.mnist.load_data()
+
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-global_size = 20000
+local_size = 10000
 
-assert global_size < len(x_train)
+assert local_size < len(x_train)
 
-trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, global_size, 10, 5)
+trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, local_size, 10, 5)
 #trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
 
 # Set number of itterations either via local_ds or number of epochs to train
@@ -295,8 +343,6 @@ learners = []
 
 e = 0 #variable for the epoch number
 
-#(x_train, y_train), (x_test, y_test)= keras.datasets.mnist.load_data()
-
 # Training on local dataset
 for i in range(len(trainsets)):
     print(f"Building model {i}")
@@ -304,7 +350,7 @@ for i in range(len(trainsets)):
     #print(trainsets[i][0])
 
     train_local(trainsets[i][0], trainsets[i][1], learners, i)
-    learners.append(load_model(f'models/cifar/model_{i}.tf'))
+    learners.append(load_model(f'models/new_method/model_{i}.tf'))
 
 print(len(trainsets[0][0]), len(trainsets[0][1]))
 
@@ -314,10 +360,13 @@ print("learners: ", len(learners))
 
 model = create_model()
 
+print("Training target")
 model.fit(x_train, y_train, epochs=10, shuffle=True, verbose=0)
-model.save(f'models/cifar/target.tf')
+model.save(f'models/new_method/target.tf')
 del model
-target = load_model('models/cifar/target.tf')
+target = load_model('models/new_method/target.tf')
+
+
 #check_learner_acc(target, x_test, y_test)
 results = target.evaluate(x_test, y_test, batch_size=128, verbose=0)
 print(f"results of target acc test: loss={results[0]} acc={results[1]}")
@@ -337,26 +386,35 @@ test_acc(learners, target)
 
 print(f"Data per epoch in itteration {local_ds}")
 print(f"Number of epochs {epochs}")
+e = 0
 
 # Training loop iterations
-for i in range(epochs*repetition):
+while len(global_x) != 0 or e<epochs:
     print(f"Training epoch {i}")
 
-    e = i+1
+    e += 1
 
+    """
     start_x = (i*local_ds) % len(global_x)
     end_x = ((i+1)*local_ds) % len(global_x) if (((i+1)*local_ds) % len(global_x)) != 0 else len(global_x)
     start_y = (i*local_ds) % len(global_y)
     end_y = ((i+1)*local_ds) % len(global_y) if (((i+1)*local_ds) % len(global_y)) != 0 else len(global_y)
     
     #print(global_x[i*local_ds:(i+1)*local_ds][0])
+    
+    # OLD VOTING
     certain_global, count = vote(learners,
-                                global_x[start_x:end_x], 
-                                global_y[start_y:end_y])
-
+                               global_x[start_x:end_x], 
+                               global_y[start_y:end_y])
     certain_global = np.array(certain_global)
     print("Certain predictions amount", len(certain_global), "with correct in them", count)
+    """
+    voted, remaining, count = new_vote(learners,
+                                global_x, 
+                                global_y)
     
+    global_x = remaining[0]
+    global_y = remaining[1]
 
     # fit model to the new labels
     # Training loop
@@ -370,14 +428,14 @@ for i in range(epochs*repetition):
         #print(certain_global)
 
         trainsets[j][0] = np.append(tmp_img, 
-                                    global_x[start_x:end_x],
+                                    voted[0],
                                     axis=0)
-        trainsets[j][1] = np.append(tmp_labels, certain_global, axis=0)
+        trainsets[j][1] = np.append(tmp_labels, voted[1], axis=0)
         
         #assert len(trainsets[j][0]) == len(trainsets[j][1])
 
         train_local(trainsets[j][0], trainsets[j][1], [], j)
-        learners[j] = load_model(f'models/cifar/model_{j}.tf')
+        learners[j] = load_model(f'models/new_method/model_{j}.tf')
 
     #test_acc(learners, target)
 
