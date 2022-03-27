@@ -206,7 +206,7 @@ def new_vote(voters, images, labels):
     
 #    check_vote(global_predictions, certain_global, label_voted)
 
-    return [np.array(image_voted), np.array(label_voted)], [np.array(image_not), np.array(label_not)], count
+    return [image_voted, label_voted], [image_not, label_not], count
 
 def train_local(train_x, train_y, learners, i):
 
@@ -338,7 +338,7 @@ trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, 
 #trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
 
 # Set number of itterations either via local_ds or number of epochs to train
-epochs = 10
+epochs = 30
 #epochs = len(global_x) // (local_ds) + 1
 local_ds = len(global_x) // epochs
 repetition = 1
@@ -434,15 +434,15 @@ while len(global_x) != 0 and e<epochs:
         #print(tmp_labels)
         #print(certain_global)
 
-        #trainsets[j][0] = np.append(tmp_img, 
-        #                            voted[0],
-        #                            axis=0)
-        #trainsets[j][1] = np.append(tmp_labels, voted[1], axis=0)
+        trainsets[j][0] = np.append(tmp_img, 
+                                    voted[0],
+                                    axis=0)
+        trainsets[j][1] = np.append(tmp_labels, voted[1], axis=0)
         
         #assert len(trainsets[j][0]) == len(trainsets[j][1])
 
-        #train_local(trainsets[j][0], trainsets[j][1], [], j) #old code
-        train_local(voted[0], voted[1], learners, j)
+        train_local(trainsets[j][0], trainsets[j][1], [], j) #old code
+        #train_local(voted[0], voted[1], learners, j)
         learners[j] = load_model(f'models/new_method/model_{j}.tf')
 
     #test_acc(learners, target)
