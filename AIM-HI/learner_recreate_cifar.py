@@ -319,7 +319,7 @@ tf.config.set_soft_device_placement(True)
 #tf.debugging.set_log_device_placement(True) #uncomment if need to check that it is executing off of GPU
 tf.get_logger().setLevel('ERROR')
 
-filename = "outputs/plotdata_newAIMHI_vote_logic.csv"
+filename = "outputs/plotdata_new_algo200_per_part.csv"
 
 f = open(filename, "a")
 f.write("Epoch,Learner,Loss,Accuracy\n")
@@ -330,7 +330,7 @@ f.close()
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-local_size = 10000
+local_size = 40000
 
 assert local_size < len(x_train)
 
@@ -454,4 +454,5 @@ certain_global, count = vote(learners, global_x, global_y)
 
 certain_global = np.array(certain_global)
 print("Certain predictions amount after new training ", len(certain_global), "with correct in them", count)
+e += 1
 test_acc(learners, target)

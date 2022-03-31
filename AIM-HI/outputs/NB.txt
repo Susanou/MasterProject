@@ -1,0 +1,11 @@
+New algorithm 1K per participant start & end
+
+There  was a total of 1994 misscounts during vote where one of the learners at least classified it correctly
+OVER TEST DATA = Certain predictions amount 10000 with correct in them 6376
+313/313 [==============================] - 0s 1ms/step
+OVER TEST DATA = TARGET Certain predictions amount 10000 with correct in them 7070
+
+There  was a total of 1792 misscounts during vote where one of the learners at least classified it correctly
+OVER TEST DATA = Certain predictions amount 10000 with correct in them 6649
+313/313 [==============================] - 0s 1ms/step
+OVER TEST DATA = TARGET Certain predictions amount 10000 with correct in them 7070
