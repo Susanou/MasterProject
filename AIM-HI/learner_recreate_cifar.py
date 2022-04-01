@@ -153,7 +153,7 @@ def vote(voters, images, labels):
         check_vote(global_predictions, certain_global, labels)
     return certain_global, count
 
-def new_vote(voters, images, labels):
+def new_vote(voters, images, labels, test_image, test_labels):
 
     #print(images[0])
 
@@ -163,7 +163,7 @@ def new_vote(voters, images, labels):
     for i, v in enumerate(voters):
         global_predictions.append(v.predict(images))
         #check_learner_acc(v, images, labels)
-        results = v.evaluate(images, labels, batch_size=128, verbose=0)
+        results = v.evaluate(test_image, test_labels, batch_size=128, verbose=0)
         print(f"results of voter {i} acc test: loss={results[0]} acc={results[1]}")
         #print(len(images), len(labels))
         print(f"{e},{i},{results[0]},{results[1]}", file = f)
@@ -418,7 +418,8 @@ while len(global_x) != 0 and e<epochs:
     """
     voted, remaining, count = new_vote(learners,
                                 global_x, 
-                                global_y)
+                                global_y,
+                                x_test, y_test)
     
     global_x = np.array(remaining[0])
     global_y = np.array(remaining[1])
@@ -450,7 +451,7 @@ while len(global_x) != 0 and e<epochs:
 e += 1
 
 # Last round of perdictions to check accuracy changes over a test dataset
-certain_global, count = vote(learners, global_x, global_y)
+certain_global, count = new_vote(learners, global_x, global_y, x_test, y_test)
 
 certain_global = np.array(certain_global)
 print("Certain predictions amount after new training ", len(certain_global), "with correct in them", count)
