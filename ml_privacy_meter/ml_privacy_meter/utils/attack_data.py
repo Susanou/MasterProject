@@ -22,18 +22,19 @@ def get_tfdataset(features, labels):
     return tf.data.Dataset.from_tensor_slices((features, labels))
 
 
-class AttackData:
+class attack_data:
     """
     Attack data class to perform operations on dataset.
     """
 
-    def __init__(self, x_population, y_population, x_target_train, y_target_train,
-                 batch_size, attack_percentage, normalization=False, input_shape=None):
+    def __init__(self, dataset_path, member_dataset_path, batch_size,
+                 attack_percentage, normalization=False,
+                 input_shape=None):
 
         self.batch_size = batch_size
 
         # Loading the training (member) dataset
-        self.train_data = self._convert_to_prev_extracted_format(x_target_train, y_target_train)
+        self.train_data = np.load(member_dataset_path)
         self.training_size = len(self.train_data)
 
         self.attack_size = int(attack_percentage /
@@ -45,7 +46,7 @@ class AttackData:
         self.normalization = normalization
 
         # Loading and shuffle the dataset
-        self.dataset = self._convert_to_prev_extracted_format(x_population, y_population)
+        self.dataset = self._extract(dataset_path)
         np.random.shuffle(self.dataset)
 
         self.input_channels = self.input_shape[-1]
@@ -64,41 +65,6 @@ class AttackData:
         with open(filepath, "r") as f:
             dataset = f.readlines()
         dataset = list(map(lambda i: i.strip('\n').split(';'), dataset))
-        dataset = np.asarray(dataset)
-        return dataset
-
-    def _convert_to_prev_extracted_format(self, x, y):
-        """
-        Utility to convert numpy array dataset to the previous data format.
-        This is so that we can use the same attack code with numpy array datasets,
-        and particularly because hashing is used for making sure member and
-        non-member datasets do not overlap.
-        Note: this workflow should be revamped in the upgrade.
-        """
-        dataset_len = len(x)
-        dataset = []
-        for idx in range(dataset_len):
-            # features
-            row_x = x[idx]
-            row_x_shape = row_x.shape
-            row = []
-            if len(row_x_shape) > 1:
-                # image data
-                num_channels = row_x_shape[-1]  # assumes HWC i.e. channels last format
-                for channel_idx in range(num_channels):
-                    channel_row_x = row_x[:, :, channel_idx].flatten()
-                    channel_row_x = channel_row_x.tolist()
-                    row.append(",".join(str(item) for item in channel_row_x))  # needs to be a string separated by ","
-            else:
-                # tabular data
-                row.append(",".join(str(item) for item in row_x))  # list of features
-
-            # labels
-            row_y = y[idx]
-            row.append(row_y)
-
-            dataset.append(row)
-
         dataset = np.asarray(dataset)
         return dataset
 

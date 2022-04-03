@@ -8,5 +8,5 @@ ml_privacy_meter/venv/
 **/venv/
 
 *.npy
-*.tar.gz
 **/datasets/
+*.tar.gz
