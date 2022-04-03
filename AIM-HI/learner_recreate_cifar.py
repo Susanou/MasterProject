@@ -330,7 +330,7 @@ f.close()
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-local_size = 40000
+local_size = 45000
 
 assert local_size < len(x_train)
 
@@ -338,7 +338,7 @@ trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, 
 #trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
 
 # Set number of itterations either via local_ds or number of epochs to train
-epochs = 30
+epochs = 100
 #epochs = len(global_x) // (local_ds) + 1
 local_ds = len(global_x) // epochs
 repetition = 1
