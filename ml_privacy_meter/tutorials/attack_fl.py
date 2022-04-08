@@ -27,10 +27,10 @@ dataset_path = 'datasets/cifar10.txt'
 datahandlerA = ml_privacy_meter.utils.attack_data.attack_data(dataset_path=dataset_path,
                                                               member_dataset_path=saved_path,
                                                               batch_size=100,
-                                                              attack_percentage=10, input_shape=input_shape,
+                                                              attack_percentage=90, input_shape=input_shape, #90 assumes its the server that attacks
                                                               normalization=True)
 attackobj = ml_privacy_meter.attack.meminf.initialize(
-    target_train_model=cmodelA,
+    target_train_model=cmodelB,
     target_attack_model=cmodelB,
     train_datahandler=datahandlerA,
     attack_datahandler=datahandlerA,
