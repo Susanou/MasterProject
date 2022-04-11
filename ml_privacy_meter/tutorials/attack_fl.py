@@ -36,7 +36,7 @@ attackobj = ml_privacy_meter.attack.meminf.initialize(
     attack_datahandler=datahandlerA,
     layers_to_exploit=[6, 7],
     gradients_to_exploit=[4],
-    device=None, epochs=100, model_name='target_vitcim_10e_white') # change number of epochs for FL
+    device=None, epochs=30, model_name='target_vitcim_10e_white') # change number of epochs for FL
 
 print("starting attack training")
 attackobj.train_attack()

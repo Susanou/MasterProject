@@ -26,7 +26,7 @@ dataset_path = 'datasets/cifar10.txt'
 
 datahandlerA = ml_privacy_meter.utils.attack_data.attack_data(dataset_path=dataset_path,
                                                               member_dataset_path=saved_path,
-                                                              batch_size=50, #update this fro AIMHI
+                                                              batch_size=1000, #update this fro AIMHI
                                                               attack_percentage=90, input_shape=input_shape, #90 assumes server is attacking
                                                               normalization=True)
 
