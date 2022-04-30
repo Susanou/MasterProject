@@ -1,0 +1,7 @@
+#!/usr/bin/bash
+
+# Shell script to sync input files.
+
+rsync -auEvP --files-from="00-SyncFileList.txt" /Users/fernst/Library/texmf/tex/latex/ .
+
+rsync -auEvP --files-from="00-SyncFileList-FE.txt" /Users/fernst/Library/texmf/tex/latex/FE/ .

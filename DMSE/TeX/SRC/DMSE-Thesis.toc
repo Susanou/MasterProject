@@ -1,0 +1,16 @@
+\contentsline {chapter}{\tocchapter {Chapter}{}{List of Tables}}{v}{Doc-Start}%
+\contentsline {chapter}{\tocchapter {Chapter}{}{List of Figures}}{vi}{Doc-Start}%
+\contentsline {chapter}{\tocchapter {Chapter}{}{Acknowledgements}}{vii}{chapter*.1}%
+\contentsline {chapter}{\tocchapter {Chapter}{}{ABSTRACT}}{1}{chapter*.2}%
+\contentsline {chapter}{\tocchapter {Chapter}{1}{Introduction}}{2}{chapter.1}%
+\contentsline {section}{\tocsection {}{}{Testing Citations and Bibliography}}{2}{section.1.1}%
+\contentsline {section}{\tocsection {}{}{Testing Figures}}{2}{section.1.2}%
+\contentsline {chapter}{\tocchapter {Chapter}{2}{Literature Review}}{4}{chapter.2}%
+\contentsline {chapter}{\tocchapter {Chapter}{3}{Methods}}{5}{chapter.3}%
+\contentsline {section}{\tocsection {}{}{Experimental Methods}}{5}{section.3.1}%
+\contentsline {section}{\tocsection {}{}{Computational Methods}}{5}{section.3.2}%
+\contentsline {chapter}{\tocchapter {Chapter}{4}{Results}}{6}{chapter.4}%
+\contentsline {section}{\tocsection {}{}{Experimental Results}}{6}{section.4.1}%
+\contentsline {chapter}{\tocchapter {Chapter}{5}{Discussion}}{7}{chapter.5}%
+\contentsline {chapter}{\tocchapter {Chapter}{6}{Conclusions}}{8}{chapter.6}%
+\contentsline {chapter}{\tocchapter {Chapter}{}{References}}{9}{chapter*.3}%
