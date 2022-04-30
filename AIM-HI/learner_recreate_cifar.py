@@ -208,25 +208,16 @@ def new_vote(voters, images, labels, test_image, test_labels):
 
     return [image_voted, label_voted], [image_not, label_not], count
 
-def train_local(train_x, train_y, learners, i):
+def train_local(train_x, train_y, learners, i, epoch_num):
 
-    try:
-        model = learners[i]
+    model = create_model()
 
-        model.fit(train_x, train_y, epochs=10, shuffle=True, verbose=0)
+    model.fit(train_x, train_y, epochs=10, shuffle=True, verbose=0)
 
-        # Maybe better way but needed to save into a file at one point
-        model.save(f'models/new_method/model_{i}.tf')
-    except Exception as e:
-        if culling:
-            model = create_culled_model(6) # we are training them on 5 classes currently. make it modular later
-        else:
-            model = create_model()
-    
-        model.fit(train_x, train_y, epochs=10, shuffle=True, verbose=0)
-
-        # Maybe better way but needed to save into a file at one point
-        model.save(f'models/new_method/model_{i}.tf')
+    # Maybe better way but needed to save into a file at one point
+    model.save(f'models/new_method/model_{i}.tf')
+    if i == 0:
+        model.save(f'models/epochs/model_{epoch_num}_{i}.tf')
 
 def dataset_formatting(train_x, train_y, global_size, percent, n_learners=2):
     local_train_x = train_x[global_size:]
@@ -338,7 +329,7 @@ trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, 
 #trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
 
 # Set number of itterations either via local_ds or number of epochs to train
-epochs = 50
+epochs = 30
 #epochs = len(global_x) // (local_ds) + 1
 local_ds = len(global_x) // epochs
 repetition = 1
@@ -442,7 +433,7 @@ while len(global_x) != 0 and e<epochs:
         
         #assert len(trainsets[j][0]) == len(trainsets[j][1])
 
-        train_local(trainsets[j][0], trainsets[j][1], [], j) #old code
+        train_local(trainsets[j][0], trainsets[j][1], [], j, e) #old code
         #train_local(voted[0], voted[1], learners, j)
         learners[j] = load_model(f'models/new_method/model_{j}.tf')
 
@@ -451,7 +442,7 @@ while len(global_x) != 0 and e<epochs:
 e += 1
 
 # Last round of perdictions to check accuracy changes over a test dataset
-certain_global, count = new_vote(learners, global_x, global_y, x_test, y_test)
+certain_global, count, _ = new_vote(learners, global_x, global_y, x_test, y_test)
 
 certain_global = np.array(certain_global)
 print("Certain predictions amount after new training ", len(certain_global), "with correct in them", count)
