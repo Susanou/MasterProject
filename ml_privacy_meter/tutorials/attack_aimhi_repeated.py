@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import shutil
 
 #os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
@@ -9,20 +10,23 @@ import tensorflow as tf
 input_shape = (32, 32, 3)
 
 epoch = 0
-max_epochs = 30
+max_epochs = 31
+from_dir = "logs/plots"
 
 while epoch < max_epochs:
+    to_dir = f"epoch_logs/logs_aimhi_90%_{epoch-1}e"
     if os.path.isdir("logs"):
-        os.rename("logs", f"logs_aimhi_90%_{epoch-1}e")
+        shutil.copytree(from_dir, to_dir)
+        shutil.rmtree("logs", ignore_errors=True)
 
     # Load saved target model to attack
     cprefix = 'target.tf'
     cmodelA = tf.keras.models.load_model(cprefix)
-    cprefix = f'epoch_model/model_{epoch}_0.tf'
+    cprefix = f'test_models/model_{epoch}_0.tf'
     cmodelB = tf.keras.models.load_model(cprefix)
 
-    cmodelA.summary()
-    cmodelB.summary()
+    #cmodelA.summary()
+    #cmodelB.summary()
 
     saved_path = "datasets/cifar10_train.txt.npy"
 
@@ -44,7 +48,7 @@ while epoch < max_epochs:
         attack_datahandler=datahandlerA,
         layers_to_exploit=[7],
         exploit_loss=False,
-        device=None, epochs=epoch, model_name='target_vitcim_100e_black')
+        device=None, epochs=epoch if epoch != 0 else 1, model_name=f'target_vitcim_{epoch}e_black')
 
     print("starting attack training")
     attackobj.train_attack()

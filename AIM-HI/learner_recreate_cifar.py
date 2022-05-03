@@ -347,7 +347,7 @@ for i in range(len(trainsets)):
 
     #print(trainsets[i][0])
 
-    train_local(trainsets[i][0], trainsets[i][1], learners, i)
+    train_local(trainsets[i][0], trainsets[i][1], learners, i, 0)
     learners.append(load_model(f'models/new_method/model_{i}.tf'))
 
 print(len(trainsets[0][0]), len(trainsets[0][1]))
