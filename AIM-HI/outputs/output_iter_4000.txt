@@ -1,0 +1,88 @@
+Building model 1
+Building model 2
+Building model 3
+Building model 4
+learners:  5
+results of target acc test: loss=0.9088897705078125 acc=0.7056999802589417
+TARGET Certain predictions amount 30000 with correct in them 24373
+results of voter acc test: loss=1.3739131689071655 acc=0.5139999985694885
+results of voter acc test: loss=1.409000277519226 acc=0.5038999915122986
+results of voter acc test: loss=1.3557512760162354 acc=0.5325999855995178
+results of voter acc test: loss=1.4009113311767578 acc=0.5055000185966492
+results of voter acc test: loss=1.5043158531188965 acc=0.4799000024795532
+There  was a total of 3280 misscounts during vote where one of the learners at least classified it correctly
+OVER TEST DATA = Certain predictions amount 10000 with correct in them 5633
+OVER TEST DATA = TARGET Certain predictions amount 10000 with correct in them 7057
+Data per epoch in itteration 4000
+Number of epochs 7
+Training lernear 0
+results of voter acc test: loss=1.3407368659973145 acc=0.5262500047683716
+results of voter acc test: loss=1.3911731243133545 acc=0.5224999785423279
+results of voter acc test: loss=1.3383629322052002 acc=0.5364999771118164
+results of voter acc test: loss=1.3767529726028442 acc=0.5197499990463257
+results of voter acc test: loss=1.4907853603363037 acc=0.4867500066757202
+There  was a total of 1221 misscounts during vote where one of the learners at least classified it correctly
+Certain predictions amount 4000 with correct in them 2326
+Training lernear 1
+results of voter acc test: loss=2.4194841384887695 acc=0.5447499752044678
+results of voter acc test: loss=2.5229241847991943 acc=0.5362499952316284
+results of voter acc test: loss=2.642699718475342 acc=0.5210000276565552
+results of voter acc test: loss=2.42332124710083 acc=0.5337499976158142
+results of voter acc test: loss=2.6896729469299316 acc=0.5245000123977661
+There  was a total of 836 misscounts during vote where one of the learners at least classified it correctly
+Certain predictions amount 4000 with correct in them 2199
+Training lernear 2
+results of voter acc test: loss=4.13523006439209 acc=0.4984999895095825
+results of voter acc test: loss=3.762744188308716 acc=0.4897499978542328
+results of voter acc test: loss=4.125629901885986 acc=0.518750011920929
+results of voter acc test: loss=3.782027006149292 acc=0.5237500071525574
+results of voter acc test: loss=4.132076740264893 acc=0.5167499780654907
+There  was a total of 766 misscounts during vote where one of the learners at least classified it correctly
+Certain predictions amount 4000 with correct in them 2130
+Training lernear 3
+results of voter acc test: loss=4.8676605224609375 acc=0.5122500061988831
+results of voter acc test: loss=4.758328437805176 acc=0.5145000219345093
+results of voter acc test: loss=4.736316680908203 acc=0.5130000114440918
+results of voter acc test: loss=4.879222393035889 acc=0.5072500109672546
+results of voter acc test: loss=5.041866779327393 acc=0.5072500109672546
+There  was a total of 632 misscounts during vote where one of the learners at least classified it correctly
+Certain predictions amount 4000 with correct in them 2099
+Training lernear 4
+results of voter acc test: loss=5.182885646820068 acc=0.5192499756813049
+results of voter acc test: loss=4.9611496925354 acc=0.5134999752044678
+results of voter acc test: loss=5.22313117980957 acc=0.5164999961853027
+results of voter acc test: loss=4.890785217285156 acc=0.5082499980926514
+results of voter acc test: loss=5.258504867553711 acc=0.5147500038146973
+There  was a total of 659 misscounts during vote where one of the learners at least classified it correctly
+Certain predictions amount 4000 with correct in them 2086
+Training lernear 5
+results of voter acc test: loss=5.566115379333496 acc=0.500249981880188
+results of voter acc test: loss=5.956475734710693 acc=0.49900001287460327
+results of voter acc test: loss=5.9938788414001465 acc=0.5087500214576721
+results of voter acc test: loss=5.539026737213135 acc=0.5019999742507935
+results of voter acc test: loss=6.219080924987793 acc=0.4975000023841858
+There  was a total of 644 misscounts during vote where one of the learners at least classified it correctly
+Certain predictions amount 4000 with correct in them 2034
+Training lernear 6
+results of voter acc test: loss=6.663532733917236 acc=0.4897499978542328
+results of voter acc test: loss=6.339313983917236 acc=0.4892500042915344
+results of voter acc test: loss=6.907533168792725 acc=0.49175000190734863
+results of voter acc test: loss=6.57682466506958 acc=0.49300000071525574
+results of voter acc test: loss=6.62520170211792 acc=0.4934999942779541
+There  was a total of 603 misscounts during vote where one of the learners at least classified it correctly
+Certain predictions amount 4000 with correct in them 1985
+results of voter acc test: loss=7.516891002655029 acc=0.502133309841156
+results of voter acc test: loss=7.459559440612793 acc=0.5028333067893982
+results of voter acc test: loss=7.339442253112793 acc=0.5078666806221008
+results of voter acc test: loss=6.994009971618652 acc=0.4987333416938782
+results of voter acc test: loss=7.7701544761657715 acc=0.5061666369438171
+There  was a total of 2703 misscounts during vote where one of the learners at least classified it correctly
+Certain predictions amount after new training  30000 with correct in them 15246
+results of voter acc test: loss=7.426448345184326 acc=0.4952000081539154
+results of voter acc test: loss=7.342584609985352 acc=0.4927999973297119
+results of voter acc test: loss=7.242603302001953 acc=0.49799999594688416
+results of voter acc test: loss=6.901716232299805 acc=0.48739999532699585
+results of voter acc test: loss=7.579580307006836 acc=0.498199999332428
+There  was a total of 1395 misscounts during vote where one of the learners at least classified it correctly
+OVER TEST DATA = Certain predictions amount 10000 with correct in them 4973
+OVER TEST DATA = TARGET Certain predictions amount 10000 with correct in them 7057

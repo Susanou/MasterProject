@@ -1,2 +1,3 @@
 # MasterProject
-My Master Thesis project on GAN attacks on real datasets
+My Master Thesis project on GAN attacks and mitigations to it.
+Algorithm POC and privacy measurement

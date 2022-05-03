@@ -1,0 +1,6 @@
+# List of input files for DMSE-Thesis
+# Sync these with the following commands:
+# rsync -auEvP --files-from="00-SyncFileList.txt" /Users/fernst/Library/texmf/tex/latex/ .
+# rsync -auEvP --files-from="00-SyncFileList.txt"
+/Users/fernst/Library/texmf/tex/latex/lineno/lineno.sty
+/Users/fernst/Library/texmf/tex/latex/MinionPro/fontaxes.sty

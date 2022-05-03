@@ -1,0 +1,58 @@
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: DMSE-Thesis.aux
+A level-1 auxiliary file: 01-Introduction.aux
+A level-1 auxiliary file: 02-Literature.aux
+A level-1 auxiliary file: 03-Methods.aux
+A level-1 auxiliary file: 04-Results.aux
+A level-1 auxiliary file: 05-Discussion.aux
+A level-1 auxiliary file: 06-Conclusions.aux
+A level-1 auxiliary file: 07-Futurework.aux
+A level-1 auxiliary file: 09-Bibliography.aux
+A level-1 auxiliary file: app_pprofile.aux
+A level-1 auxiliary file: app_specimens.aux
+A level-1 auxiliary file: app_thesis_prep.aux
+A level-1 auxiliary file: app_figs.aux
+The style file: plainnat.bst
+Database file #1: ../BIB/DMSE-Thesis.bib
+You've used 1 entry,
+            2773 wiz_defined-function locations,
+            611 strings with 5162 characters,
+and the built_in function-call counts, 409 in all, are:
+= -- 35
+> -- 10
+< -- 1
++ -- 4
+- -- 3
+* -- 27
+:= -- 68
+add.period$ -- 3
+call.type$ -- 1
+change.case$ -- 4
+chr.to.int$ -- 1
+cite$ -- 2
+duplicate$ -- 20
+empty$ -- 40
+format.name$ -- 4
+if$ -- 82
+int.to.chr$ -- 1
+int.to.str$ -- 1
+missing$ -- 1
+newline$ -- 13
+num.names$ -- 4
+pop$ -- 7
+preamble$ -- 1
+purify$ -- 3
+quote$ -- 0
+skip$ -- 14
+stack$ -- 0
+substring$ -- 23
+swap$ -- 1
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 11
+warning$ -- 0
+while$ -- 4
+width$ -- 0
+write$ -- 20
