@@ -10,11 +10,12 @@ import tensorflow as tf
 
 input_shape = (32, 32, 3)
 
-epoch = 0
+epoch = 25
 max_epochs = 100
 from_dir = "logs/plots"
 
 while epoch < max_epochs:
+    print(f"epoch num{epoch}")
     to_dir = f"epoch_logs_fl/logs_fl_90%_{epoch-1}e"
     if os.path.isdir("logs"):
         shutil.copytree(from_dir, to_dir)
@@ -57,3 +58,4 @@ while epoch < max_epochs:
     
     print("Generating plots")
     attackobj.test_attack()
+    epoch += 1
