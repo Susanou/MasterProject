@@ -11,7 +11,7 @@ input_shape = (32, 32, 3)
 # Load saved target model to attack
 cprefix = 'target.tf'
 cmodelA = tf.keras.models.load_model(cprefix)
-cprefix = 'models_fl\\model_1.tf'
+cprefix = 'models_fl_new\\model_1.tf'
 cmodelB = tf.keras.models.load_model(cprefix)
 
 cmodelA.summary()
@@ -35,8 +35,8 @@ attackobj = ml_privacy_meter.attack.meminf.initialize(
     target_attack_model=cmodelB,
     train_datahandler=datahandlerA,
     attack_datahandler=datahandlerA,
-    layers_to_exploit=[7],
-    exploit_loss=False,
+    layers_to_exploit=[6, 7],
+    gradients_to_exploit=[4],
     device=None, epochs=30, model_name='target_vitcim_100e_black')
 
 print("starting attack training")
