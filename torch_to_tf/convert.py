@@ -55,8 +55,10 @@ for filename in os.listdir(directory):
         trained_model = Cifar10PaperNet()
         trained_model.load_state_dict(torch.load(f))
 
-        dummy_input = Variable(torch.randn(1, 3, 32, 32))
+        input_np = np.random.uniform(0, 1, (1, 3, 32, 32))
+        input_var = Variable(torch.FloatTensor(input_np))
+        print(input_var.shape)
 
-        tf_ref = pytorch_to_keras(trained_model, dummy_input, [(3, 32, 32)], verbose=True)
+        tf_ref = pytorch_to_keras(trained_model, input_var, [(3, 32, 32,)], verbose=True, change_ordering=True)
         print(tf_ref.summary())
         tf_ref.save(f'keras_models\\model_{epoch}.tf')

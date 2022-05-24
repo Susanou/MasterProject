@@ -11,7 +11,7 @@ input_shape = (32, 32, 3)
 # Load saved target model to attack
 cprefix = 'target.tf'
 cmodelA = tf.keras.models.load_model(cprefix)
-cprefix = 'model_0.tf'
+cprefix = 'models_fl\\model_1.tf'
 cmodelB = tf.keras.models.load_model(cprefix)
 
 cmodelA.summary()
