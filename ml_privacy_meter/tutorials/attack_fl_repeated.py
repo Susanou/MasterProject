@@ -10,7 +10,7 @@ import tensorflow as tf
 
 input_shape = (32, 32, 3)
 
-epoch = 25
+epoch = 30
 max_epochs = 100
 from_dir = "logs/plots"
 
