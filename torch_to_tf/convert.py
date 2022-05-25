@@ -26,12 +26,13 @@ class Cifar10PaperNet(nn.Module):
         self.conv1 = nn.Conv2d(3, 32, kernel_size=3)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3)
-        self.fc1 = nn.Linear(64*3*3*4, 64)
+        self.fc1 = nn.Linear(2304, 64)
         self.fc2 = nn.Linear(64, 10)
         
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool(F.relu(self.conv2(x)))
+        #x = F.relu(self.conv2(x))
         x = torch.flatten(x, 1) # flatten all dimensions except batch
         x = F.relu(self.fc1(x))
         x = self.fc2(x)
@@ -55,8 +56,10 @@ for filename in os.listdir(directory):
         trained_model = Cifar10PaperNet()
         trained_model.load_state_dict(torch.load(f))
 
-        dummy_input = Variable(torch.randn(1, 3, 32, 32))
+        input_np = np.random.uniform(0, 1, (1, 3, 32, 32))
+        input_var = Variable(torch.FloatTensor(input_np))
+        print(input_var.shape)
 
-        tf_ref = pytorch_to_keras(trained_model, dummy_input, [(3, 32, 32)], verbose=True)
+        tf_ref = pytorch_to_keras(trained_model, input_var, [(3, 32, 32,)], verbose=False, change_ordering=False)
         print(tf_ref.summary())
         tf_ref.save(f'keras_models\\model_{epoch}.tf')
