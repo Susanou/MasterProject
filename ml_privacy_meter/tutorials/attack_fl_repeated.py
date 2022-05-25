@@ -53,7 +53,7 @@ while epoch < max_epochs:
         target_attack_model=cmodelB,
         train_datahandler=datahandlerA,
         attack_datahandler=datahandlerA,
-        layers_to_exploit=[6, 7],
+        layers_to_exploit=[9, 11],
         gradients_to_exploit=[4],
         device=None, epochs=epoch if epoch != 0 else 1, model_name=f'target_vitcim_{epoch}e_white') # change number of epochs for FL
     
