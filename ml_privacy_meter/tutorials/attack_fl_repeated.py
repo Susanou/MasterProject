@@ -8,9 +8,13 @@ import ml_privacy_meter
 import tensorflow as tf
 
 
+tf.keras.backend.set_image_data_format('channels_first') #channels_last for NWHC
+
+
+
 input_shape = (32, 32, 3)
 
-epoch = 30
+epoch = 1
 max_epochs = 100
 from_dir = "logs/plots"
 
@@ -24,11 +28,11 @@ while epoch < max_epochs:
     # Load saved target model to attack
     cprefix = 'target.tf'
     cmodelA = tf.keras.models.load_model(cprefix)
-    cprefix = f'model_0.tf'
+    cprefix = f'models_fl/model_{epoch}.tf'
     cmodelB = tf.keras.models.load_model(cprefix)
 
-    #cmodelA.summary()
-    #cmodelB.summary()
+    cmodelA.summary()
+    cmodelB.summary()
 
     saved_path = "datasets/cifar10_train.txt.npy"
 
