@@ -15,4 +15,4 @@ label and send it back to all participants. This ensures that only blackbox atta
 could be performed on the system. Our preliminary results seem to show that this
 would make it much harder to run membership inference attacks on this system.
 
-![privacy analysis](images/report.png)
+![privacy analysis](Images/report.png)
