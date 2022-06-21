@@ -61,6 +61,6 @@ for filename in os.listdir(directory):
         input_var = Variable(torch.FloatTensor(input_np))
         print(input_var.shape)
 
-        tf_ref = pytorch_to_keras(trained_model, input_var, [(3, 32, 32,)], verbose=False, change_ordering=False)
+        tf_ref = pytorch_to_keras(trained_model, input_var, [(3, 32, 32,)], verbose=False, change_ordering=True)
         print(tf_ref.summary())
         tf_ref.save(f'keras_models/model_{epoch}.tf')

@@ -14,8 +14,8 @@ tf.keras.backend.set_image_data_format('channels_first') #channels_last for NWHC
 
 input_shape = (32, 32, 3)
 
-epoch = 1
-max_epochs = 100
+epoch = 86
+max_epochs = epoch+2
 from_dir = "logs/plots"
 
 while epoch < max_epochs:
@@ -53,7 +53,7 @@ while epoch < max_epochs:
         target_attack_model=cmodelB,
         train_datahandler=datahandlerA,
         attack_datahandler=datahandlerA,
-        layers_to_exploit=[9, 11],
+        layers_to_exploit=[4, 7, -1],
         gradients_to_exploit=[4],
         device=None, epochs=epoch if epoch != 0 else 1, model_name=f'target_vitcim_{epoch}e_white') # change number of epochs for FL
     
@@ -63,3 +63,10 @@ while epoch < max_epochs:
     print("Generating plots")
     attackobj.test_attack()
     epoch += 1
+
+
+
+to_dir = f"epoch_logs_fl/logs_fl_90%_{epoch-1}e"
+if os.path.isdir("logs"):
+    shutil.copytree(from_dir, to_dir)
+    shutil.rmtree("logs", ignore_errors=True)
