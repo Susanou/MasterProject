@@ -204,7 +204,7 @@ def new_vote(voters, images, labels, test_image, test_labels):
             image_not.append(images[i])
             label_not.append(labels[i])
     
-#    check_vote(global_predictions, certain_global, label_voted)
+    #    check_vote(global_predictions, certain_global, label_voted)
 
     return [image_voted, label_voted], [image_not, label_not], count
 
@@ -321,11 +321,11 @@ f.close()
 x_train = x_train/255.0
 x_test = x_test/255.0
 
-local_size = 49000
+train_size = 40000
 
-assert local_size < len(x_train)
+assert train_size < len(x_train)
 
-trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, local_size, 10, 5)
+trainsets, global_x, global_y, local_ds  = dataset_formatting(x_train, y_train, train_size, 10, 5)
 #trainsets, global_x, global_y = dataset_formatting_label_culling(x_train, y_train, 20000, True, 0.0)
 
 # Set number of itterations either via local_ds or number of epochs to train
