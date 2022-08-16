@@ -1,3 +1,9 @@
+---
+header-includes:
+ - \usepackage{fvextra}
+ - \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+---
+
 # AIM-HI report
 
 - [AIM-HI report](#aim-hi-report)
@@ -7,14 +13,17 @@
     - [Train local function](#train-local-function)
   - [Settings](#settings)
   - [Results obtained:](#results-obtained)
-
+- [FL report](#fl-report)
+  - [Bash file](#bash-file)
+  - [PyTorch to TF conversion](#pytorch-to-tf-conversion)
+  - [Results](#results)
 
 ## Model chosen
 
 ```py
 def create_model():
 
-    
+
     # CIFAR10 model
     model = models.Sequential()
     model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
@@ -72,13 +81,13 @@ def new_vote(voters, images, labels, test_image, test_labels):
     certain_global = []
     count = 0
 
-    for i in range(len(labels)): 
+    for i in range(len(labels)):
         tmp = np.zeros(10)
 
         for cg in global_predictions:
             best = np.argmax(cg[i])
-            tmp[best] += 1 #select only the best and check that its equal to 5 ie unanimous vote        
-     
+            tmp[best] += 1 #select only the best and check that its equal to 5 ie unanimous vote
+
         if tmp[np.argmax(tmp)] == len(voters):
             image_voted.append(images[i])
             label_voted.append(labels[i])
@@ -88,7 +97,7 @@ def new_vote(voters, images, labels, test_image, test_labels):
         else:
             image_not.append(images[i])
             label_not.append(labels[i])
-    
+
 #    check_vote(global_predictions, certain_global, label_voted)
 
     return [image_voted, label_voted], [image_not, label_not], count
@@ -116,10 +125,10 @@ while len(global_x) != 0 and e<epochs:
     e += 1
 
     voted, remaining, count = new_vote(learners,
-                                global_x, 
+                                global_x,
                                 global_y,
                                 x_test, y_test)
-    
+
     global_x = np.array(remaining[0])
     global_y = np.array(remaining[1])
 
@@ -134,11 +143,11 @@ while len(global_x) != 0 and e<epochs:
         #print(tmp_labels)
         #print(certain_global)
 
-        trainsets[j][0] = np.append(tmp_img, 
+        trainsets[j][0] = np.append(tmp_img,
                                     voted[0],
                                     axis=0)
         trainsets[j][1] = np.append(tmp_labels, voted[1], axis=0)
-        
+
         #assert len(trainsets[j][0]) == len(trainsets[j][1])
 
         train_local(trainsets[j][0], trainsets[j][1], [], j, e) #old code
@@ -163,7 +172,7 @@ def train_local(train_x, train_y, learners, i, epoch_num):
         model.save(f'models/epochs/model_{epoch_num}_{i}.tf')
 ```
 
-One problem with TF that happened was that a pre-trained model, the accuracy on the test set would start going down. The fix to this semmed to create an entirely new model and train it again. Each model trains on the dataset it owns and the one that was classified for 10 epochs before the next communication round. 
+One problem with TF that happened was that a pre-trained model, the accuracy on the test set would start going down. The fix to this semmed to create an entirely new model and train it again. Each model trains on the dataset it owns and the one that was classified for 10 epochs before the next communication round.
 
 ## Settings
 
@@ -180,7 +189,7 @@ The settings can be modified before the voting loop under the `Global Vars` head
 2 = INFO and WARNING messages are not printed
 3 = INFO, WARNING, and ERROR messages are not printed
 """
-#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2' 
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 # Use GPUs
 tf.config.set_soft_device_placement(True)
@@ -215,9 +224,9 @@ epochs = 30
 **Summary:**
 
 ```
-- 5 clients 
-- 40K unlabeled 
-- adam (default settings)
+- 5 clients
+- 40K unlabeled
+- optimizer = adam (default settings)
 - batch_size = 128
 - commrounds = 600
 - comm period =  evaluation period = 20
@@ -227,4 +236,111 @@ epochs = 30
 
 The results obtained for the first model (`model_0.tf`) are compiled in the google spreadsheet under the AIM-HI Tab:
 
-![google sheets](google.png)
+![google sheets](images/google.png)
+
+The full file containing the loss and accuracy of each models in under the `outputs` folder and the name is `plotdata_new_algo_1K_local.csv` (only model_0's results are in the table)
+
+# FL report
+
+## Bash file
+
+```python
+#! /bin/bash --
+
+method="FL"
+numclients=5
+numrounds=600
+commperiod=10
+evaluationrounds=20
+trainbatchsize=500
+clients="PaperCIFARNet"
+dataset="CIFAR10"
+
+python3 -u experiment.py --method $method --client $clients --dataset $dataset --num-clients $numclients --num-rounds $numrounds --train-batch-size $trainbatchsize --comm-period $commperiod --evaluation-rounds $evaluationrounds | tee Exp${method}_${client}_${dataset}_${numclients}cl_n${numrounds}_r${numrounds}.log
+
+```
+
+No other modifications of the code were made and this was run to create all the models for the FL experiment.
+
+## PyTorch to TF conversion
+
+```python
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+import torch.nn.init as init
+from torchvision import datasets, transforms
+from torch.autograd import Variable
+
+import onnx
+from onnx_tf.backend import prepare
+
+import numpy as np
+from IPython.display import display
+from PIL import Image
+
+import tensorflow as tf
+
+from pytorch2keras.converter import pytorch_to_keras
+
+import os
+import re
+
+class Cifar10PaperNet(nn.Module):
+    def __init__(self):
+        super(Cifar10PaperNet, self).__init__()
+        self.conv1 = nn.Conv2d(3, 32, kernel_size=3)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3)
+        self.conv3 = nn.Conv2d(64, 64, kernel_size=3)
+        self.fc1 = nn.Linear(1024, 64)
+        self.fc2 = nn.Linear(64, 10)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = F.relu(self.conv3(x))
+        x = torch.flatten(x, 1) # flatten all dimensions except batch
+        x = F.relu(self.fc1(x))
+        x = self.fc2(x)
+        return x
+
+
+regex = r"model_round(.*).model"
+
+directory = 'torch_models'
+
+for filename in os.listdir(directory):
+    f = os.path.join(directory, filename)
+    #print(filename)
+
+    if os.path.isfile(f):
+
+        epoch = int(re.search(regex, filename).group(1))
+        epoch = (epoch+1)//20
+        #print(epoch)
+
+        trained_model = Cifar10PaperNet()
+        trained_model.load_state_dict(torch.load(f))
+
+        input_np = np.random.uniform(0, 1, (1, 3, 32, 32))
+        input_var = Variable(torch.FloatTensor(input_np))
+        print(input_var.shape)
+
+        tf_ref = pytorch_to_keras(trained_model, input_var, [(3, 32, 32,)], verbose=False, change_ordering=True)
+        print(tf_ref.summary())
+        tf_ref.save(f'keras_models/model_{epoch}.tf')
+```
+
+Since the PyTorch model couldn't be tested for the privacy, we had to convert them using `onnx` and `pytorch2keras`. This script allowed us to covnert these models to a format that would be readable for the ml privacy tool.
+
+| TF model                         | PyTorch converted model               |
+| -------------------------------- | ------------------------------------- |
+| ![TF model](images/TF_model.png) | ![PyTorch model](images/PY_model.png) |
+
+_NB: the \_CHW layer that is added on the converted PyTorch model is because PyTorch and Tensorflow read image data differently. This layer is to account for that difference._
+
+## Results
+
+Similar to the AIM HI results, all of the results pulled from these models are under the FL tabs of the same spreadsheet.
